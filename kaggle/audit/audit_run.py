@@ -95,27 +95,31 @@ for i in range(5):
                  color="white" if cm[i, j] > 0.5 else "black", fontsize=8)
 plt.tight_layout(); plt.savefig(f"{FIG}/07_confusion.png", dpi=130); plt.close()
 
-# ---- missingness stress: vitals-only (vulnerable) vs fusion (robust) ----
-print("missingness stress...")
+# ---- missingness stress: the trap is the missingness INDICATORS, not text vs vitals ----
+# Clean ablation: identical fusion model WITH vs WITHOUT the *_missing indicator features.
+# Blank the vitals of truly urgent patients (a real-ED scenario) and watch undertriage.
+print("missingness stress (with vs without indicators)...")
 VIT = ["systolic_bp", "diastolic_bp", "heart_rate", "respiratory_rate", "temperature_c", "spo2"]
-vit_model = SecondLookModel(use_text=False, calibrate=False, max_features=1).fit(tr, ytr)
-fus_model = SecondLookModel(calibrate=False, max_features=20000).fit(tr, ytr)
+fus_with = SecondLookModel(calibrate=False, max_features=20000).fit(tr, ytr)
+fus_without = SecondLookModel(calibrate=False, max_features=20000,
+                              drop_missingness_indicators=True).fit(tr, ytr)
 res["missingness_stress"] = {
-    "vitals_only": missingness_stress(lambda d: vit_model.predict(d), te, yte, VIT, "urgent"),
-    "fusion": missingness_stress(lambda d: fus_model.predict(d), te, yte, VIT, "urgent"),
+    "with_indicators": missingness_stress(lambda d: fus_with.predict(d), te, yte, VIT, "urgent"),
+    "without_indicators": missingness_stress(lambda d: fus_without.predict(d), te, yte, VIT, "urgent"),
 }
 print("stress:", res["missingness_stress"])
 ms = res["missingness_stress"]
-labels = ["vitals-only", "fusion (text)"]
-base = [ms["vitals_only"]["baseline_undertriage"], ms["fusion"]["baseline_undertriage"]]
-strs = [ms["vitals_only"]["stressed_undertriage"], ms["fusion"]["stressed_undertriage"]]
+labels = ["WITH missingness\nindicators", "WITHOUT\n(de-biased)"]
+base = [ms["with_indicators"]["baseline_undertriage"], ms["without_indicators"]["baseline_undertriage"]]
+strs = [ms["with_indicators"]["stressed_undertriage"], ms["without_indicators"]["stressed_undertriage"]]
 x = np.arange(2); w = 0.38
-plt.figure(figsize=(6, 3.6))
+plt.figure(figsize=(6.2, 3.8))
 plt.bar(x - w/2, base, w, label="vitals present", color="#27ae60")
 plt.bar(x + w/2, strs, w, label="vitals blanked for the sick", color="#c0392b")
 plt.xticks(x, labels); plt.ylabel("undertriage % (true ESI 1/2)")
-plt.title("Informative-missingness stress test"); plt.legend()
-plt.tight_layout(); plt.savefig(f"{FIG}/08_missingness_stress.png", dpi=130); plt.close()
+plt.title("Informative-missingness trap: blanking vitals of the sick")
+plt.legend(); plt.tight_layout(); plt.savefig(f"{FIG}/08_missingness_stress.png", dpi=130); plt.close()
+fus_model = fus_with  # used below for token interpretability
 
 # ---- top text tokens per class (uncalibrated fusion for interpretability) ----
 try:
@@ -146,11 +150,15 @@ DEMO_COLS = ["chief_complaint_raw", "age", "sex", "arrival_mode",
              "systolic_bp", "diastolic_bp", "heart_rate", "respiratory_rate",
              "temperature_c", "spo2", "gcs_total", "pain_score", "num_comorbidities",
              "news2_score", "shock_index"]
-print("fitting compact demo model on ALL data (fixed schema)...")
-demo = SecondLookModel(calibrate=True, max_features=8000).fit(df[DEMO_COLS], y)
+print("fitting compact SAFE demo model on ALL data (fixed schema, de-biased)...")
+# de-biased: no missingness-indicator shortcut, so the demo behaves safely when vitals blank
+demo = SecondLookModel(calibrate=True, max_features=8000,
+                       drop_missingness_indicators=True).fit(df[DEMO_COLS], y)
 joblib.dump(demo, "/kaggle/working/model.pkl")
 res["demo_cols"] = DEMO_COLS
 res["demo_model_bytes"] = os.path.getsize("/kaggle/working/model.pkl")
+import sklearn
+res["versions"] = {"sklearn": sklearn.__version__, "numpy": np.__version__, "pandas": pd.__version__}
 
 with open(f"{OUT}/audit.json", "w") as f:
     json.dump(res, f, indent=2, default=str)

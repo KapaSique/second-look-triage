@@ -65,6 +65,14 @@ def test_ece_confident_correct_low_overconfident_wrong_high():
     assert expected_calibration_error(good, y) < expected_calibration_error(bad, y)
 
 
+def test_drop_missingness_indicators_constructs_and_predicts():
+    df, y = _toy()
+    df.loc[0, "systolic_bp"] = np.nan  # ensure a missingness indicator would exist
+    m = SecondLookModel(calibrate=False, drop_missingness_indicators=True).fit(df, y)
+    p = m.predict_proba(df)
+    assert p.shape == (len(df), 5) and np.allclose(p.sum(1), 1.0, atol=1e-6)
+
+
 def test_cross_validate_keys():
     df, y = _toy()
     out = cross_validate(lambda: SecondLookModel(calibrate=False), df, y, n_splits=2)

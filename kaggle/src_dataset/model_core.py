@@ -27,30 +27,36 @@ from sklearn.model_selection import StratifiedKFold
 from sklearn.metrics import accuracy_score, f1_score
 
 try:
-    from src.data_prep import engineer_features, TARGET
+    from src.data_prep import engineer_features, TARGET, MISSING_VITALS
 except ImportError:  # flat import when src/ is shipped as a Kaggle utility dataset
-    from data_prep import engineer_features, TARGET
+    from data_prep import engineer_features, TARGET, MISSING_VITALS
 
 ACUITY_CLASSES: List[int] = [1, 2, 3, 4, 5]
 TEXT_COL = "chief_complaint_raw"
 EXCLUDE = {TARGET, TEXT_COL, "site_id", "triage_nurse_id"}
+# Missingness-indicator columns added by engineer_features (the informative-missingness shortcut).
+MISSINGNESS_COLS = {f"{c}_missing" for c in MISSING_VITALS} | {
+    "n_vitals_missing", "any_vital_missing", "pain_missing"}
 
 
 class SecondLookModel:
     def __init__(self, use_text: bool = True, use_tabular: bool = True,
                  calibrate: bool = True, calib_method: str = "sigmoid",
-                 max_features: int = 20000):
+                 max_features: int = 20000, drop_missingness_indicators: bool = False):
         self.use_text = use_text
         self.use_tabular = use_tabular
         self.calibrate = calibrate
         self.calib_method = calib_method
         self.max_features = max_features
+        self.drop_missingness_indicators = drop_missingness_indicators
         self.pipe = None
 
     def _build(self, feats: pd.DataFrame) -> ColumnTransformer:
         transformers = []
+        drop = MISSINGNESS_COLS if self.drop_missingness_indicators else set()
         if self.use_tabular:
-            num = [c for c in feats.columns if c not in EXCLUDE and is_numeric_dtype(feats[c])]
+            num = [c for c in feats.columns
+                   if c not in EXCLUDE and c not in drop and is_numeric_dtype(feats[c])]
             cat = [c for c in feats.columns if c not in EXCLUDE and not is_numeric_dtype(feats[c]) and c != TEXT_COL]
             if num:
                 transformers.append(("num", Pipeline([
