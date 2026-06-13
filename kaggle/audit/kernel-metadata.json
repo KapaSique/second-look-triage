@@ -1,0 +1,13 @@
+{
+  "id": "ssstelmah/triagegeist-audit",
+  "title": "triagegeist-audit",
+  "code_file": "audit_run.py",
+  "language": "python",
+  "kernel_type": "script",
+  "is_private": "true",
+  "enable_gpu": "false",
+  "enable_internet": "false",
+  "dataset_sources": ["ssstelmah/second-look-src"],
+  "competition_sources": ["triagegeist"],
+  "kernel_sources": []
+}

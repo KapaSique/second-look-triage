@@ -1,0 +1,124 @@
+{
+  "n_train": 80000,
+  "n_test": 20000,
+  "target_distribution": {
+    "1": 3222,
+    "2": 13439,
+    "3": 28921,
+    "4": 23020,
+    "5": 11398
+  },
+  "target_pct": {
+    "1": 4.03,
+    "2": 16.8,
+    "3": 36.15,
+    "4": 28.78,
+    "5": 14.25
+  },
+  "missing_pct_by_acuity": {
+    "systolic_bp": {
+      "1": 0.0,
+      "2": 0.0,
+      "3": 0.0,
+      "4": 12.15,
+      "5": 11.84
+    },
+    "diastolic_bp": {
+      "1": 0.0,
+      "2": 0.0,
+      "3": 0.0,
+      "4": 12.15,
+      "5": 11.84
+    },
+    "heart_rate": {
+      "1": 0.0,
+      "2": 0.0,
+      "3": 0.0,
+      "4": 0.0,
+      "5": 0.0
+    },
+    "respiratory_rate": {
+      "1": 0.0,
+      "2": 0.0,
+      "3": 0.0,
+      "4": 8.92,
+      "5": 8.9
+    },
+    "temperature_c": {
+      "1": 0.0,
+      "2": 0.0,
+      "3": 0.0,
+      "4": 0.0,
+      "5": 5.04
+    },
+    "spo2": {
+      "1": 0.0,
+      "2": 0.0,
+      "3": 0.0,
+      "4": 0.0,
+      "5": 0.0
+    }
+  },
+  "baselines": {
+    "text_only": {
+      "acc": 0.9994,
+      "acc_std": 0.0002,
+      "macro_f1": 0.998,
+      "undertriage_pct": 0.306
+    },
+    "vitals_only": {
+      "acc": 0.8033,
+      "acc_std": 0.0032,
+      "macro_f1": 0.8239,
+      "undertriage_pct": 4.598
+    },
+    "fusion": {
+      "acc": 0.9984,
+      "acc_std": 0.0004,
+      "macro_f1": 0.9965,
+      "undertriage_pct": 0.642
+    }
+  },
+  "news2_only_acc": 0.6528,
+  "complaint_analysis": {
+    "n_unique_train": 4949,
+    "pct_complaints_single_acuity": 99.7,
+    "pct_train_rows_deterministic_complaint": 99.7,
+    "test_complaints_seen_in_train_pct": 99.8
+  },
+  "variability": {
+    "site_id": {
+      "n": 5,
+      "mean_min": 3.312,
+      "mean_max": 3.332,
+      "mean_std": 0.0075
+    },
+    "triage_nurse_id": {
+      "n": 50,
+      "mean_min": 3.27,
+      "mean_max": 3.359,
+      "mean_std": 0.0204
+    }
+  },
+  "occult": {
+    "n": 35,
+    "pct_of_urgent": 0.21,
+    "examples": [
+      "haemoptysis significant, intermittent",
+      "acute NSTEMI with fever",
+      "retinal detachment, for 2 days",
+      "chest pain with diaphoresis and arm radiation, constant",
+      "acute severe psychosis with vomiting",
+      "shoulder dislocation with vascular compromise, constant",
+      "high-speed MVA multiple injuries, since yesterday",
+      "ischaemic colitis suspected with diaphoresis",
+      "acute pancreatitis with organ dysfunction\uff0cworsening over hours",
+      "ovarian torsion with rigors",
+      "significant epistaxis requiring intervention, no prior history of this",
+      "sepsis with altered mental status, constant",
+      "significant head injury with LOC\uff0cworsening over hours",
+      "near-drowning with fever",
+      "traumatic eye injury significant, constant"
+    ]
+  }
+}

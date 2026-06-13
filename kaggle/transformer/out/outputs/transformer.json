@@ -1,0 +1,18 @@
+{
+  "n_paraphrases": 36,
+  "n_critical": 20,
+  "tfidf": {
+    "exact_pct": 27.8,
+    "mae": 1.22,
+    "critical_safe_recall_pct": 30.0,
+    "urgent_agreement_pct": 58.3
+  },
+  "embed_model": "pritamdeka/S-PubMedBert-MS-MARCO",
+  "device": "cpu",
+  "transformer": {
+    "exact_pct": 38.9,
+    "mae": 1.0,
+    "critical_safe_recall_pct": 35.0,
+    "urgent_agreement_pct": 63.9
+  }
+}
