@@ -27,6 +27,10 @@ On the provided synthetic data, the free-text chief complaint predicts the ESI l
 
 ## ▶ See it catch a heart attack — [try it live](https://huggingface.co/spaces/KapaSique/second-look-triage)
 
+<p align="center">
+  <img src="assets/demo.gif" width="92%" alt="Second Look live demo flagging an occult ACS case: the model alone says ESI 3, the red-flag layer escalates to ESI 2 ESCALATE">
+</p>
+
 > **Input** · *“chest pain radiating to the left arm, sweaty and short of breath”* — with **normal vitals**
 > **Model alone** → ESI **3** (56 %) · it would **under-triage** a likely heart attack
 > **Second Look** → 🚩 `ACS (critical)` red-flag fires → **escalates to ESI 2 · ESCALATE**
