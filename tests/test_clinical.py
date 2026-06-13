@@ -33,5 +33,5 @@ def test_compute_derived_adds_fields():
                              weight_kg=70, height_cm=175, gcs_total=15))
     assert abs(d["shock_index"] - 0.75) < 1e-6
     assert abs(d["pulse_pressure"] - 40) < 1e-6
-    assert abs(d["mean_arterial_pressure"] - (120 + 2 * 80) / 3) < 1e-6
+    assert abs(d["mean_arterial_pressure"] - (120 + 2 * 80) / 3) < 0.1  # rounded to 1 dp
     assert "news2_score" in d and "bmi" in d
