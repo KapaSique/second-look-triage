@@ -25,3 +25,5 @@ kaggle.json
 kaggle/*/out/
 *.pkl
 *.log
+
+notebooks/out/
