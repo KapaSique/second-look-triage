@@ -4,11 +4,12 @@ emoji: 🚑
 colorFrom: indigo
 colorTo: red
 sdk: gradio
-sdk_version: 4.44.1
+sdk_version: 5.50.0
+python_version: "3.11"
 app_file: app.py
 pinned: false
 license: cc-by-nc-4.0
-short_description: A triage safety-net & decision-support second opinion (synthetic-data demo)
+short_description: Triage safety-net decision support (synthetic demo)
 ---
 
 # Second Look — ED Triage Safety Net

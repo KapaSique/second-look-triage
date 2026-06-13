@@ -55,7 +55,7 @@ We are deliberately forthright:
 
 ## Reproducibility
 
-A public GitHub repository contains the seven `src` modules, **44 unit tests**, the Kaggle kernels (forensics, generalization, audit) that regenerate every number and figure, the public end-to-end Kaggle notebook, and the Gradio app. Heavy compute is packaged as reproducible Kaggle kernels importing the same tested code; the design spec and implementation plan are included. Links: [Notebook] · [GitHub] · [Live demo].
+A public GitHub repository contains the seven `src` modules, **44 unit tests**, the Kaggle kernels (forensics, generalization, audit) that regenerate every number and figure, the public end-to-end Kaggle notebook, and the Gradio app. Heavy compute is packaged as reproducible Kaggle kernels importing the same tested code; the design spec and implementation plan are included. **Links:** [Kaggle notebook](https://www.kaggle.com/code/ssstelmah/second-look-triage-safety-net) · [GitHub](https://github.com/KapaSique/second-look-triage) · [Live demo](https://huggingface.co/spaces/KapaSique/second-look-triage).
 
 ---
 
