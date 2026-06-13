@@ -1,13 +1,17 @@
 {
-  "id": "ssstelmah/second-look-triage",
-  "title": "Second Look — triage safety net",
+  "id": "ssstelmah/second-look-triage-safety-net",
+  "title": "Second Look \u2014 triage safety net",
   "code_file": "second_look_submission.ipynb",
   "language": "python",
   "kernel_type": "notebook",
   "is_private": "true",
   "enable_gpu": "false",
   "enable_internet": "false",
-  "dataset_sources": ["ssstelmah/second-look-src"],
-  "competition_sources": ["triagegeist"],
+  "dataset_sources": [
+    "ssstelmah/second-look-src"
+  ],
+  "competition_sources": [
+    "triagegeist"
+  ],
   "kernel_sources": []
 }
