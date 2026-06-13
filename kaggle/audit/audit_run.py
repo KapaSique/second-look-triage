@@ -139,10 +139,17 @@ try:
 except Exception as e:
     res["top_tokens_error"] = str(e)[:200]
 
-# ---- export compact calibrated model for the demo ----
-print("fitting compact demo model on ALL data...")
-demo = SecondLookModel(calibrate=True, max_features=8000).fit(df, y)
+# ---- export compact calibrated model for the demo (FIXED minimal schema) ----
+# The Gradio demo can only realistically collect a handful of fields, so we train the
+# exported model on an explicit, demo-controllable schema (text + key vitals + 2 derived).
+DEMO_COLS = ["chief_complaint_raw", "age", "sex", "arrival_mode",
+             "systolic_bp", "diastolic_bp", "heart_rate", "respiratory_rate",
+             "temperature_c", "spo2", "gcs_total", "pain_score", "num_comorbidities",
+             "news2_score", "shock_index"]
+print("fitting compact demo model on ALL data (fixed schema)...")
+demo = SecondLookModel(calibrate=True, max_features=8000).fit(df[DEMO_COLS], y)
 joblib.dump(demo, "/kaggle/working/model.pkl")
+res["demo_cols"] = DEMO_COLS
 res["demo_model_bytes"] = os.path.getsize("/kaggle/working/model.pkl")
 
 with open(f"{OUT}/audit.json", "w") as f:
