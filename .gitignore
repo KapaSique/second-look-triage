@@ -1,0 +1,22 @@
+# Competition data — redistribution prohibited by Triagegeist rules
+data/
+*.zip
+*.csv
+!writeup/*.csv
+# Python
+__pycache__/
+*.pyc
+.venv*/
+venv/
+.ipynb_checkpoints/
+# models / large artifacts
+*.pt
+*.bin
+*.onnx
+artifacts/
+# OS
+.DS_Store
+# secrets
+*.token
+.hf_token
+kaggle.json
