@@ -46,6 +46,7 @@ The vitals-blind red-flag layer is the safety net: it can only ever *raise* urge
 | 3 | Occult high-risk patients exist; vitals miss them | NEWS2-only accuracy ceiling **65 %** · free text + red-flags catch them |
 | 4 | **Clinical knowledge generalises; memorisation doesn’t** | critical safe-recall on paraphrases — TF-IDF 30 % · transformer 35 % · **red-flag ontology 90 %** |
 | 5 | Calibrated & audited | held-out acc 0.992 · undertriage 2.8 % · ECE 0.106 · fairness reported across sex/age/language/insurance |
+| 6 | **Patterns hold on REAL ED data (NHAMCS, n=43,921)** | occult high-risk: **26.7 %** of urgent visits have all-normal vitals · missingness is **U-shaped** (sickest *and* least-sick miss vitals) → "missing ⇒ less sick" would undertriage the crashing patient |
 
 <p align="center">
   <img src="figures/02_informative_missingness.png" width="24%" alt="Informative missingness">
@@ -54,6 +55,13 @@ The vitals-blind red-flag layer is the safety net: it can only ever *raise* urge
   <img src="figures/06_fairness.png" width="24%" alt="Fairness audit">
 </p>
 <p align="center"><sub>informative missingness · missingness stress-test (the deployment trap) · paraphrase generalization · subgroup fairness</sub></p>
+
+### Real-world validity check — [NHAMCS](https://www.cdc.gov/nchs/nhamcs/) 2019–22 (43,921 real ED visits)
+
+<p align="center">
+  <img src="figures/11_synthetic_vs_nhamcs.png" width="66%" alt="Synthetic vs real NHAMCS missingness: real ED data is U-shaped">
+</p>
+<p align="center"><sub>The informative-missingness and occult-risk patterns reproduce on real CDC data — with a twist: real-world missingness is <b>U-shaped</b> (the sickest <em>and</em> the least-sick miss vitals most), so a model that learns the synthetic "missing ⇒ less sick" rule would <b>undertriage the crashing patient</b> in deployment.</sub></p>
 
 ## The system — 7 unit-tested modules (`src/`)
 

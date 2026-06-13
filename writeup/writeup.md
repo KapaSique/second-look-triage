@@ -6,7 +6,7 @@
 
 ## Clinical problem statement
 
-Emergency-department triage assigns each arriving patient an acuity level (the Emergency Severity Index, ESI 1–5) that governs how long they safely wait. The dangerous error is **undertriage** — labelling a sick patient as low-acuity. Undertriage delays care for time-critical conditions (STEMI, sepsis, stroke, subarachnoid haemorrhage) and is a documented, asymmetric patient-safety hazard: missing one decompensating patient outweighs over-triaging many well ones. The Triagegeist brief names two concrete failure modes — **inter-rater variability** and **systematic undertriage of certain populations** — as the problems worth solving.
+Emergency-department triage assigns each arriving patient an acuity level (the Emergency Severity Index, ESI 1–5 [1]) that governs how long they safely wait. The dangerous error is **undertriage** — labelling a sick patient as low-acuity. Undertriage delays care for time-critical conditions (STEMI, sepsis, stroke, subarachnoid haemorrhage) and is a documented, asymmetric patient-safety hazard [2,3]: missing one decompensating patient outweighs over-triaging many well ones. The Triagegeist brief names two concrete failure modes — **inter-rater variability** [2] and **systematic undertriage of certain populations** [3] — as the problems worth solving.
 
 We therefore did **not** set out to build "the most accurate ESI classifier." We set out to build a *safety net*: a system that flags the occult high-risk patient, behaves sanely when data is missing, is honest about its uncertainty, and — crucially — is honest about what the available data can and cannot prove. We call it **Second Look**: a second pair of eyes on the triage decision, never a replacement for the clinician.
 
@@ -28,9 +28,9 @@ We therefore did **not** set out to build "the most accurate ESI classifier." We
 
 **Finding 1 — Accuracy is a mirage; the label is a near-lookup.** Text-only: **acc 0.9994, macro-F1 0.998** (5-fold). Vitals-only: acc 0.803. The complaint vocabulary is closed — 4,949 unique complaints, **99.7%** mapping to a single acuity, and **99.8%** of test complaints already appear in train. A TF-IDF model "wins" by memorising. We report this openly: chasing leaderboard-style accuracy here would be self-deception.
 
-**Finding 2 — Informative missingness is a deployment trap.** Vitals are missing **only for low-acuity patients**: systolic-BP missingness is 0% for ESI 1–3 but ~12% for ESI 4–5 (respiratory rate 0→9%; temperature only for ESI 5). "No BP recorded" is thus a near-perfect proxy for "not sick" — *in this dataset*. A model that uses missingness indicators (standard practice) weaponises this shortcut. Our stress test blanks the vitals of genuinely urgent patients (the real-ED scenario of a crashing patient whose vitals weren't captured): undertriage of the fusion model jumps from **0.84% to 78.0%**. Removing the missingness indicators cuts this sharply — stressed undertriage falls to **15.3%** (an ~80% reduction) — though residual vulnerability remains because the model still partly leans on vitals, which is itself an honest signal that this needs real-data validation, not a one-line fix. The "excellent" held-out model is the dangerous one; only the audit catches it. Our shipped demo model is the de-biased version.
+**Finding 2 — Informative missingness is a deployment trap.** Vitals are missing **only for low-acuity patients**: systolic-BP missingness is 0% for ESI 1–3 but ~12% for ESI 4–5 (respiratory rate 0→9%; temperature only for ESI 5). "No BP recorded" is thus a near-perfect proxy for "not sick" — *in this dataset*. A model that uses missingness indicators (standard practice) weaponises this shortcut — that the *presence* of a measurement is itself predictive of outcome is a documented EHR hazard [5]. Our stress test blanks the vitals of genuinely urgent patients (the real-ED scenario of a crashing patient whose vitals weren't captured): undertriage of the fusion model jumps from **0.84% to 78.0%**. Removing the missingness indicators cuts this sharply — stressed undertriage falls to **15.3%** (an ~80% reduction) — though residual vulnerability remains because the model still partly leans on vitals, which is itself an honest signal that this needs real-data validation, not a one-line fix. The "excellent" held-out model is the dangerous one; only the audit catches it. Our shipped demo model is the de-biased version.
 
-**Finding 3 — Occult high-risk patients exist, and free text is the only channel that sees them.** 0.21% of urgent patients present with deceptively normal vitals — but textbook can't-miss complaints ("chest pain with diaphoresis and arm radiation", "sepsis with altered mental status", "ovarian torsion with rigors"). NEWS2 alone caps at **65%** accuracy and would miss them; the text and the red-flag ontology catch them.
+**Finding 3 — Occult high-risk patients exist, and free text is the only channel that sees them.** 0.21% of urgent patients present with deceptively normal vitals — but textbook can't-miss complaints ("chest pain with diaphoresis and arm radiation", "sepsis with altered mental status", "ovarian torsion with rigors"). NEWS2 [4] alone caps at **65%** accuracy and would miss them; the text and the red-flag ontology catch them.
 
 **Finding 4 — Generalization: knowledge beats memorisation on unseen language.** We hand-wrote 36 paraphrases (20 critical) of red-flag presentations in lay language *not* present in training, and measured *critical safe-recall* (fraction of critical cases assigned ESI ≤ 2):
 
@@ -44,18 +44,29 @@ Two honest lessons: (a) a system that scores 100% on the synthetic vocabulary ca
 
 **Finding 5 — Calibration and fairness.** On a 20% holdout the calibrated model reaches acc 0.992, undertriage 2.8%, ECE 0.106. Undertriage is similar across sex (F 2.6%, M 2.9%) but elevated for the small "Other" group (5.1%, n=396) — a finding we surface rather than bury. Because the synthetic generator injected no group bias, this reflects sampling/representation, not learned discrimination — exactly the kind of caveat the audit is for.
 
+**Finding 6 — The patterns hold on real ED data (NHAMCS).** We tested our two clinical claims on **43,921 real triaged visits** from the CDC's National Hospital Ambulatory Medical Care Survey (NHAMCS 2019–2022 [6]). *Occult high-risk is real:* **26.7%** of high-acuity (immediacy 1–2) patients present with all-normal recorded vitals — vitals alone would miss one in four. *Informative missingness is real, with a sharper twist:* vitals-recording is **U-shaped** in acuity — missing most for both the *least* urgent (skipped) and the *most* urgent (immediacy 1: 27% of visits miss ≥1 vital, deferred during resuscitation), vs ~11% in the middle. The synthetic generator encoded only the low-acuity half; a model that learns "missing ⇒ less sick" would therefore **undertriage the crashing patient** in deployment — turning our simulated stress-test (Finding 2) into a documented, real-world hazard.
+
 ## Limitations
 
 We are deliberately forthright:
 
 - **The data is synthetic.** Labels are near-deterministic in severity; there is **no** inter-rater variability (nurse/site mean-acuity SD ≈ 0.01–0.02) and **no** injected undertriage or demographic bias. We therefore make **no** claim to have "discovered" bias or rater drift in the data — doing so would be dishonest. Every conclusion is about our *model* and *deployment conditions*, not the data's social validity.
 - **The red-flag ontology was developed with the paraphrase examples in mind**, so its 90% reflects design intent; the TF-IDF and transformer numbers are zero-shot. The probe is illustrative, not a benchmark.
-- **External validity is unproven.** Safe free-text triage demands validation on real, diverse clinical corpora (MIMIC-IV-ED, NHAMCS). We treat this as the essential next step, not a footnote.
+- **External validity is only partially tested.** We corroborated the occult-risk and informative-missingness patterns on real NHAMCS data (Finding 6), but full validation of the *safe-triage system* demands richer clinical corpora with linked outcomes (MIMIC-IV-ED). We treat this as the essential next step, not a footnote.
 - **Not a medical device.** Second Look is a decision-support second opinion and a research demonstration.
 
 ## Reproducibility
 
 A public GitHub repository contains the seven `src` modules, **44 unit tests**, the Kaggle kernels (forensics, generalization, audit) that regenerate every number and figure, the public end-to-end Kaggle notebook, and the Gradio app. Heavy compute is packaged as reproducible Kaggle kernels importing the same tested code; the design spec and implementation plan are included. **Links:** [Kaggle notebook](https://www.kaggle.com/code/ssstelmah/second-look-triage-safety-net) · [GitHub](https://github.com/KapaSique/second-look-triage) · [Live demo](https://huggingface.co/spaces/KapaSique/second-look-triage).
+
+## References
+
+1. Gilboy N, Tanabe P, Travers D, Rosenau AM. *Emergency Severity Index (ESI): A Triage Tool for Emergency Department Care, Version 4.* Agency for Healthcare Research and Quality, Rockville, MD.
+2. Hinson JS, Martinez DA, Cabral S, et al. Triage Performance in Emergency Medicine: A Systematic Review. *Ann Emerg Med.* 2019;74(1):140–152.
+3. Platts-Mills TF, Travers D, Biese K, et al. At risk of undertriage? Testing the performance and accuracy of the Emergency Severity Index in older emergency department patients. *Ann Emerg Med.* 2012;60(3):317–325.
+4. Royal College of Physicians. *National Early Warning Score (NEWS) 2: Standardising the assessment of acute-illness severity in the NHS.* London: RCP; 2017.
+5. Agniel D, Kohane IS, Weber GM. Biases in electronic health record data due to processes within the healthcare system: retrospective observational study. *BMJ.* 2018;361:k1479.
+6. CDC / National Center for Health Statistics. *National Hospital Ambulatory Medical Care Survey (NHAMCS), 2019–2022 Emergency Department public-use files.*
 
 ---
 

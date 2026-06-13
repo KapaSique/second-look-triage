@@ -27,3 +27,4 @@ kaggle/*/out/
 *.log
 
 notebooks/out/
+kaggle/**/out/

@@ -1,0 +1,13 @@
+{
+  "id": "ssstelmah/triagegeist-nhamcs",
+  "title": "triagegeist-nhamcs",
+  "code_file": "nhamcs.py",
+  "language": "python",
+  "kernel_type": "script",
+  "is_private": "true",
+  "enable_gpu": "false",
+  "enable_internet": "false",
+  "dataset_sources": ["amalmraju/triagegeist-nhamcs-2019-2022", "reaper0ai/nhamcs-2018-22"],
+  "competition_sources": [],
+  "kernel_sources": []
+}
