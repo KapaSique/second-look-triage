@@ -20,3 +20,8 @@ artifacts/
 *.token
 .hf_token
 kaggle.json
+
+# Kaggle kernel fetched outputs (reproducible build artifacts)
+kaggle/*/out/
+*.pkl
+*.log
