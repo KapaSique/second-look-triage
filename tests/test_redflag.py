@@ -48,3 +48,16 @@ def test_dedup_one_flag_per_category():
 def test_redflag_is_frozen_dataclass():
     rf = RedFlag("ACS", "critical", "nstemi", 2, "note")
     assert rf.category == "ACS" and rf.esi_floor == 2
+
+
+def test_lay_language_variants():
+    assert any(x.category == "GI_BLEED" for x in m.flags("throwing up bright red blood and feeling faint"))
+    assert any(x.category == "AIRWAY" for x in m.flags("can't catch her breath and the lips are turning blue"))
+    assert any(x.category == "UNRESPONSIVE" for x in m.flags("collapsed and is not waking up"))
+    assert any(x.category == "MENINGITIS" for x in m.flags("stiff neck, high fever and the light hurts his eyes"))
+
+
+def test_benign_lay_phrases_still_clean():
+    for t in ["here for a flu shot", "mild earache, no fever", "asking about travel vaccinations",
+              "stubbed toe, sore but walking fine", "blocked nose and sneezing for a week"]:
+        assert m.flags(t) == [], f"false flag on benign: {t!r}"
