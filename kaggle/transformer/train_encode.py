@@ -105,15 +105,26 @@ emb_ok = True
 try:
     import torch
     from transformers import AutoTokenizer, AutoModel
-    dev = "cuda" if torch.cuda.is_available() else "cpu"
-    res["device"] = dev
     name = "pritamdeka/S-PubMedBert-MS-MARCO"
     try:
-        tok = AutoTokenizer.from_pretrained(name); model = AutoModel.from_pretrained(name).to(dev).eval()
+        tok = AutoTokenizer.from_pretrained(name); model = AutoModel.from_pretrained(name).eval()
     except Exception:
         name = "sentence-transformers/all-MiniLM-L6-v2"
-        tok = AutoTokenizer.from_pretrained(name); model = AutoModel.from_pretrained(name).to(dev).eval()
+        tok = AutoTokenizer.from_pretrained(name); model = AutoModel.from_pretrained(name).eval()
     res["embed_model"] = name
+    # Probe the GPU with one tiny forward; some Kaggle GPUs (arch) are unsupported by the
+    # preinstalled torch (cudaErrorNoKernelImageForDevice). Fall back to CPU -> guaranteed result.
+    dev = "cpu"
+    if torch.cuda.is_available():
+        try:
+            model = model.to("cuda")
+            _t = tok(["test"], return_tensors="pt").to("cuda")
+            with torch.no_grad():
+                model(**_t)
+            dev = "cuda"
+        except Exception as ce:
+            model = model.to("cpu"); dev = "cpu"; res["cuda_fallback"] = str(ce)[:120]
+    res["device"] = dev
 
     def encode(texts, bs=128, max_len=64):
         outs = []
